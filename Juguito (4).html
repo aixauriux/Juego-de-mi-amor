@@ -1,0 +1,194 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Juguito</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff7ec;--p:#f08cb4;--l:#c9a7f0}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);font:11px/1.7 'Press Start 2P','Courier New',monospace;color:#4a2840;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+body.dark{background:#1b1024;color:#ffd6e8}
+.card{width:min(94vw,360px);margin:14px;padding:16px;border:4px solid var(--p);border-radius:16px;background:linear-gradient(#fff,#f6e6ff);box-shadow:0 0 0 3px #fff inset,0 6px 0 #d96a9a;text-align:center}
+body.dark .card{background:#2a1838;box-shadow:0 0 0 3px #3a2450 inset,0 6px 0 #d96a9a}
+h2{margin:0 0 12px;padding:12px 8px;font-size:13px;line-height:1.6;border:3px solid #6a3a5a;border-radius:6px;background:linear-gradient(90deg,var(--p),var(--l));color:#fff;text-shadow:2px 2px #6a3a5a}
+p{margin:8px 0}.s{font-size:8px}
+.b{font:inherit;font-size:10px;margin:6px;padding:10px 14px;border:3px solid #4a2840;border-radius:6px;background:#a8e6b8;box-shadow:0 4px #4a2840;cursor:pointer;color:#4a2840}
+.b.no{background:#ff7a8a;color:#fff}.b.lila{background:#d9c0ff}
+.b:active{transform:translateY(3px);box-shadow:0 1px #4a2840}
+canvas{width:100%;image-rendering:pixelated;border:3px solid #4a2840;border-radius:6px;display:block;margin:10px 0}
+.pad{display:grid;grid-template-columns:repeat(3,52px);gap:6px;justify-content:center}
+.pad button{height:46px;font-size:18px;border:3px solid #4a2840;border-radius:6px;background:#e8d6ff;box-shadow:0 3px #4a2840;touch-action:manipulation;cursor:pointer}
+.pad button:active{transform:translateY(2px)}
+input.t{font:inherit;font-size:12px;text-align:center;padding:8px;width:140px;border:3px solid #4a2840;border-radius:6px}
+.err{color:#e0204a;font-size:8px;display:none}
+.photos{display:flex;justify-content:center;gap:12px;margin:8px 0}
+.photos img{width:84px;height:84px;object-fit:cover;border:3px solid var(--p);border-radius:50%}
+.cover{width:170px;height:170px;object-fit:cover;border:4px solid var(--p);border-radius:8px;image-rendering:auto}
+audio{width:100%;margin-top:12px}
+.conf{position:fixed;top:-30px;font-size:20px;animation:f linear forwards;z-index:5;pointer-events:none}
+.sts{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;margin:6px 0}.stk{width:70px;height:70px;image-rendering:pixelated;transform:rotate(var(--r,0deg));filter:drop-shadow(0 0 0 #fff) drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(0 3px 3px #0004);animation:pop .35s ease-out}
+@keyframes pop{from{transform:scale(0) rotate(var(--r,0deg))}}
+#y{transition:transform .25s}
+@keyframes bob{to{transform:translateY(-8px)}}
+@keyframes f{to{transform:translateY(112vh) rotate(360deg)}}
+#gear{position:fixed;left:8px;bottom:8px;z-index:8;width:40px;height:40px;border-radius:50%;border:2px solid #4a2840;background:#fff;font-size:20px;opacity:.75;cursor:pointer}
+#editor{position:fixed;inset:0;background:#000b;overflow:auto;z-index:9}
+.ep{background:#fff;max-width:440px;margin:16px auto;padding:16px;border-radius:12px;font:14px/1.4 system-ui,sans-serif;color:#222}
+.ep h3{margin:0 0 4px}.ep h4{margin:18px 0 4px;color:#c2417c}
+.ep label{display:block;margin:10px 0 2px;font-weight:600;font-size:12px}
+.ep input[type=text],.ep textarea{width:100%;padding:7px;border:1px solid #bbb;border-radius:6px;font:14px system-ui,sans-serif}
+.ep input[type=color]{width:60px;height:34px}
+.ep .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;position:sticky;bottom:0;background:#fff;padding:8px 0}
+.ep button{padding:10px 12px;border:0;border-radius:8px;background:#f08cb4;color:#fff;font:600 13px system-ui;cursor:pointer}
+.ep button.g{background:#888}.ep small{color:#2a8a4a}
+</style></head>
+<body>
+<div id="app"></div>
+<button id="gear" title="Editar">⚙</button>
+<div id="editor" hidden=""></div>
+
+<!-- TODO LO EDITABLE ESTÁ AQUÍ (también puedes tocar el botón ⚙ dentro del juego) -->
+<script type="application/json" id="cfg">{"nombreElla":"Ella","nombreYo":"Yo","tit1":"Hola ¿Quieres jugar un juego?","sub1":"Un pequeño juego hecho con todo mi amor jujujuju","btnSi":"Sí, quiero (Me encantas)😍😍","btnNo":"No me interesa(En el fondo si)😒😒","insist":"Te tiene que interesar 😑😑","pruebaTit":"La Prueba de Fuego","pruebaTxt":"Antes de iniciar, debes demostrar que sí me conoces.","pregunta":"¿Cuál es la fecha de mi cumpleaños?","respuesta":"23/11","errorTxt":"Pena deveria darte Valentina 😡😡 ¿Seguro eres tú? o camila JAKAJKAJAKA","btnEnviar":"Enviar","n1Tit":"Nivel 1: El Laberinto","n1Sub":"¡Encuéntrame!","ganasteTit":"¡Casi que no mamita! Pero lo lograste jujuju😁😁","carta":"Eres la persona mas importante en  mi vida mi cielo, TE AMOOOOOOOOO.","btnSig":"Siguiente","contTit":"¿Quieres continuar la aventura?","contSub":"El camino a casa y tu lugar seguro te espera...","btnSi2":"Sí","btnNo2":"No","n2Tit":"Nivel 2: El Camino a Casa","n2Sub":"¡Esquiva los obstáculos y llega al castillo!","n2Ouch":"¡Dios mio! Amor no esta tan dificil akjkjakj","finTit":"¡Gracias por jugarlo y por formar parte de mi vida!","finSub":"Eres la coincidencia más bonita, mi serendipia","btnFin":"Ver sorpresa","sobreTxt":"Tienes una carta. Tócala 💌","cartaTit":"Para ti","cartaTexto":"Si te vieras con mis ojos podrías comprender\nen este momento sé que desde que llegaste a mi vida me aseguraste un futuro\na mí que había perdido la esperanza de tener uno.\nLos planes que tenemos ahora\nme confirman que lo que tenemos es imposible de definir\nen una sola palabra.\nLo que sentimos tú y yo es la forma más pura del amor.\nMe rompí mi propio corazón antes,\npero no me importa haberte dado los pedazos que quedaban\nporque lo supiste unir con un pegamento invisible\npero indestructible.\nYa no tienes que dudar si alguna de mis acciones\nfue realmente mía o de mi miedo,\nporque se murió el día que decidí\nque me da más miedo una vida sin ti.\nAmo lo que fuimos,\nlo que no sabíamos que éramos y lo que seguimos siendo","pideTxt":"¿Puedo ser tu novia?","btnSiN":"¡Sí! Eres irresistible😍😍💖","btnNoN":"No porque eres negra JAKJAKAJ","tristes":"¿Segura? 🥺|Mira cómo se puso el gatito...|Piénsalo otra vez 💔|Un sí y todos se alegran 🐱|Ya casi me lloran todos 😿","respTit":"¡Ya sabia que no te ibas aguantar a mis encantos! 😆😆","respTxt":"Eres la mejor decisión de mi vida. Te amo muchísimo.","firma":"Con todo mi amor tu amor","cancion":"","audioArchivo":"","audio":"","fondo":"#fff7ec","rosa":"#f08cb4","lila":"#c9a7f0","ellaPelo":"#17101a","ellaPiel":"#e3b08f","ellaTop":"#f6f3f8","ellaPantalon":"#b9a76a","ellaZapato":"#3a2a2a","yoPelo":"#17101a","yoPiel":"#d9a27f","yoChaqueta":"#1c1c20","yoBlusa":"#ffffff","yoPantalon":"#3b4a6b","yoZapato":"#2a2a30","fotoElla":"","fotoYo":"","mostrarEditor":true}</script>
+
+<script>
+const $=s=>document.querySelector(s);
+const DEF=JSON.parse($('#cfg').textContent);
+let C={...DEF};
+try{Object.assign(C,JSON.parse(localStorage.getItem('juguito2')||'{}'))}catch(e){}
+
+/* ---- Campos del editor: [clave, etiqueta, tipo] t=texto a=área c=color i=imagen m=audio b=sí/no ---- */
+const FIELDS=[
+['Nombres'],['nombreElla','Su nombre','t'],['nombreYo','Tu nombre','t'],
+['Pantalla de inicio'],['tit1','Título','t'],['sub1','Subtítulo','t'],['btnSi','Botón Sí','t'],['btnNo','Botón No (huye)','t'],['insist','Mensaje cuando intenta decir que no','t'],
+['La prueba'],['pruebaTit','Título','t'],['pruebaTxt','Texto','a'],['pregunta','Pregunta','t'],['respuesta','Respuesta correcta (DD/MM)','t'],['errorTxt','Mensaje si se equivoca','t'],['btnEnviar','Botón enviar','t'],
+['Nivel 1 (laberinto)'],['n1Tit','Título','t'],['n1Sub','Subtítulo','t'],
+['Carta'],['ganasteTit','Título','t'],['carta','Mensaje','a'],['btnSig','Botón siguiente','t'],
+['Continuar'],['contTit','Título','t'],['contSub','Subtítulo','t'],['btnSi2','Botón Sí','t'],['btnNo2','Botón No (huye)','t'],
+['Nivel 2 (camino a casa)'],['n2Tit','Título','t'],['n2Sub','Subtítulo','t'],['n2Ouch','Mensaje al chocar','t'],
+['Final'],['finTit','Título','a'],['finSub','Subtítulo','t'],['btnFin','Botón','t'],['Carta interactiva'],['sobreTxt','Texto bajo el sobre','t'],['cartaTit','Título de la carta','t'],['cartaTexto','Mensaje de la carta','a'],['pideTxt','Pregunta','t'],['btnSiN','Botón Sí','t'],['btnNoN','Botón No (sale un gatito triste)','t'],['tristes','Frases cuando dice que no (sepáralas con |)','a'],['respTit','Título cuando dice que sí','t'],['respTxt','Mensaje cuando dice que sí','a'],['firma','Firma','t'],['cancion','Nombre de la canción','t'],['audio','Canción: sube tu archivo mp3','m'],['audioArchivo','O escribe el nombre del mp3 que guardaste junto a este HTML (ej: neoroneo.mp3)','t'],
+['Fotos'],['fotoElla','Foto de ella (sale en la carta y al final)','i'],['fotoYo','Tu foto (sale en la carta y al final)','i'],
+['Colores de la página'],['fondo','Fondo','c'],['rosa','Rosa principal','c'],['lila','Lila','c'],
+['Muñeca de ella'],['ellaPelo','Pelo','c'],['ellaPiel','Piel','c'],['ellaTop','Camiseta','c'],['ellaPantalon','Pantalón','c'],['ellaZapato','Zapatos','c'],
+['Tu muñeca'],['yoPelo','Pelo','c'],['yoPiel','Piel','c'],['yoChaqueta','Chaqueta','c'],['yoBlusa','Camiseta de abajo','c'],['yoPantalon','Pantalón','c'],['yoZapato','Zapatos','c'],
+['Opciones'],['mostrarEditor','Mostrar el botón ⚙ (desmárcalo antes de enviarlo)','b']
+];
+
+/* ---- Muñecos pixel: H pelo, S piel, E ojos, T/J ropa, W blusa, D detalle, P/Q pantalón, K zapatos ---- */
+const ELLA=["..HHHH..",".HHHHHH.",".HSSSSH.",".HSESEH.",".HSSSSH.","HHTDDTHH","HDTTTTDH","HDTTTTDH",".PPPPPP.",".PPPPPP.",".PP..PP.",".KK..KK."];
+const YO=["..HHHH..",".HHHHHH.",".HSSSSH.",".HSESEH.",".HSSSSH.","HJJWWJJH","JJJWWJJJ","JJJWWJJJ",".QQQQQQ.",".QQQQQQ.",".QQ..QQ.",".KK..KK."];
+const pal=w=>w=='e'?{H:C.ellaPelo,S:C.ellaPiel,E:'#2a1a1a',T:C.ellaTop,D:'#26264a',P:C.ellaPantalon,K:C.ellaZapato}:{H:C.yoPelo,S:C.yoPiel,E:'#2a1a1a',J:C.yoChaqueta,W:C.yoBlusa,Q:C.yoPantalon,K:C.yoZapato};
+function spr(ctx,w,x,y,s){const rows=w=='e'?ELLA:YO,p=pal(w);rows.forEach((r,j)=>[...r].forEach((c,i)=>{if(c!='.'){ctx.fillStyle=p[c];ctx.fillRect(Math.round(x+i*s),Math.round(y+j*s),Math.ceil(s),Math.ceil(s))}}))}
+function heart(ctx,x,y,s,col){const h=["01100110","11111111","11111111","01111110","00111100","00011000"];ctx.fillStyle=col;h.forEach((r,j)=>[...r].forEach((c,i)=>c=='1'&&ctx.fillRect(x+i*s,y+j*s,s,s)))}
+
+/* ---- Base ---- */
+let raf=0,onkey=null;
+addEventListener('keydown',e=>{if(onkey&&onkey(e))e.preventDefault()});
+function theme(){const r=document.documentElement.style;r.setProperty('--bg',C.fondo);r.setProperty('--p',C.rosa);r.setProperty('--l',C.lila)}
+function card(h){cancelAnimationFrame(raf);onkey=null;document.querySelectorAll('.conf').forEach(e=>e.remove());$('#app').innerHTML=`<div class="card">${h}</div>`;scrollTo(0,0)}
+const pad=()=>`<div class="pad"><i></i><button data-d="U">↑</button><i></i><button data-d="L">←</button><button data-d="D">↓</button><button data-d="R">→</button></div>`;
+function bindPad(mv){const M={U:[0,-1],D:[0,1],L:[-1,0],R:[1,0]},K={ArrowUp:'U',ArrowDown:'D',ArrowLeft:'L',ArrowRight:'R',w:'U',s:'D',a:'L',d:'R'};
+ document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>mv(...M[b.dataset.d]));
+ onkey=e=>{const d=K[e.key];if(d){mv(...M[d]);return true}}}
+function dodge(b,msg){let n=0;const go=e=>{e.preventDefault();n++;b.style.position='fixed';const r=b.getBoundingClientRect();b.style.left=Math.random()*(innerWidth-r.width-20)+10+'px';b.style.top=Math.random()*(innerHeight-r.height-20)+10+'px';if(msg&&n>1)msg.style.display='block'};
+ ['pointerenter','click'].forEach(t=>b.addEventListener(t,go));b.addEventListener('touchstart',go,{passive:false})}
+function confetti(){const E=['❤️','💗','💖','💕','🌸','✨'];for(let i=0;i<60;i++){const s=document.createElement('span');s.className='conf';s.textContent=E[i%E.length];s.style.left=Math.random()*100+'vw';s.style.animationDuration=3+Math.random()*3+'s';s.style.animationDelay=Math.random()*2+'s';document.body.appendChild(s)}}
+
+/* ---- Pantallas ---- */
+function s1(){card(`<p>🌸 ♥ 🌸</p><h2>${C.tit1}</h2><p class="s">${C.sub1} ✨</p><button class="b" id="y">${C.btnSi} 💚</button><br><button class="b no" id="n">${C.btnNo}</button><p id="m" class="s" style="display:none;color:#e0204a">${C.insist}</p>`);
+ $('#y').onclick=s2;dodge($('#n'),$('#m'))}
+
+const norm=s=>{s=s.trim();if(/^\d{4}$/.test(s))s=s.slice(0,2)+'/'+s.slice(2);return s.split(/\D+/).filter(Boolean).map(Number).join('/')};
+function s2(){card(`<p>🌷 ✨ 🌷</p><h2>${C.pruebaTit} 🔥</h2><p class="s">${C.pruebaTxt}</p><p class="s">${C.pregunta}</p><input class="t" id="i" inputmode="numeric" placeholder="DD/MM"><br><button class="b no" id="e">${C.btnEnviar}</button><p class="err" id="r">${C.errorTxt} 😡</p>`);
+ const go=()=>norm($('#i').value)==norm(C.respuesta)?s3():($('#r').style.display='block');
+ $('#e').onclick=go;$('#i').addEventListener('keydown',e=>{if(e.key=='Enter')go()})}
+
+function s3(){const N=7,G=2*N+1,T=24,g=Array.from({length:G},()=>Array(G).fill(1));
+ (function cv(x,y){g[y][x]=0;[[0,-2],[0,2],[-2,0],[2,0]].sort(()=>Math.random()-.5).forEach(([dx,dy])=>{const a=x+dx,b=y+dy;if(a>0&&b>0&&a<G&&b<G&&g[b][a]){g[y+dy/2][x+dx/2]=0;cv(a,b)}})})(1,1);
+ let p=[1,1];const goal=[G-2,G-2];
+ card(`<h2>${C.n1Tit} 🧭</h2><p class="s">${C.n1Sub} 💕</p><canvas id="c" width="${G*T}" height="${G*T}"></canvas>${pad()}`);
+ const x=$('#c').getContext('2d');
+ const draw=()=>{for(let j=0;j<G;j++)for(let i=0;i<G;i++){x.fillStyle=g[j][i]?'#a33d7a':((i+j)%2?'#fde6f1':'#fff3f9');x.fillRect(i*T,j*T,T,T);if(g[j][i]){x.fillStyle='#c2569a';x.fillRect(i*T,j*T,T,4)}}
+  spr(x,'y',goal[0]*T+4,goal[1]*T,2);spr(x,'e',p[0]*T+4,p[1]*T,2)};
+ draw();
+ bindPad((dx,dy)=>{const a=p[0]+dx,b=p[1]+dy;if(g[b]&&g[b][a]===0){p=[a,b];draw();if(a==goal[0]&&b==goal[1])setTimeout(s4,250)}})}
+
+function s4(){card(`<h2>${C.ganasteTit} 🎉</h2><canvas id="c" width="240" height="96"></canvas>
+ ${C.fotoElla||C.fotoYo?`<div class="photos">${C.fotoYo?`<img src="${C.fotoYo}">`:''}${C.fotoElla?`<img src="${C.fotoElla}">`:''}</div>`:''}
+ <p class="s"><i>De ${C.nombreYo}:</i></p><p class="s">“${C.carta}”</p><button class="b lila" id="n">${C.btnSig} 💜</button>`);
+ const x=$('#c').getContext('2d');x.fillStyle='#e8f8ee';x.fillRect(0,0,240,96);x.fillStyle='#bfeccb';x.fillRect(0,72,240,24);
+ spr(x,'y',70,36,5*0+4);spr(x,'e',138,36,4);heart(x,108,30,4,'#ff4d8d');$('#n').onclick=s5}
+
+function s5(){card(`<p>🌸 💛 🌸</p><h2>${C.contTit} 🚀</h2><p class="s">${C.contSub}</p><button class="b" id="y">${C.btnSi2} 💚</button><button class="b no" id="n">${C.btnNo2}</button><p id="m" class="s" style="display:none;color:#e0204a">${C.insist}</p>`);
+ $('#y').onclick=s6;dodge($('#n'),$('#m'))}
+
+function s6(){const W=9,H=10,T=32,K=['rock','cloud','rock','rock','puddle','puddle'];
+ card(`<h2>${C.n2Tit} 🏰</h2><p class="s">${C.n2Sub} 🌸</p><p class="s" id="o" style="color:#e0204a;min-height:12px"></p><canvas id="c" width="${W*T}" height="${H*T}"></canvas>${pad()}`);
+ const x=$('#c').getContext('2d');let p=[4,9],t0=0;
+ const L=K.map((k,i)=>({k,r:i+2,v:(i%2?-1:1)*(1.1+i*.28),o:[0,1,2].map(n=>n*3+Math.random()*1.2)}));
+ const rock=(cx,cy)=>{x.fillStyle='#8a8590';x.beginPath();x.ellipse(cx,cy,14,11,0,0,7);x.fill();x.fillStyle='#a9a4b0';x.beginPath();x.ellipse(cx-3,cy-3,7,4,0,0,7);x.fill()};
+ const cloud=(cx,cy)=>{x.fillStyle='#f6b36a';[[-9,2,8],[0,-3,10],[9,2,8]].forEach(([a,b,r])=>{x.beginPath();x.arc(cx+a,cy+b,r,0,7);x.fill()})};
+ const pud=(cx,cy)=>{x.fillStyle='#7fc4f2';x.beginPath();x.ellipse(cx,cy+4,15,6,0,0,7);x.fill()};
+ const F={rock,cloud,puddle:pud};
+ const reset=()=>{p=[4,9]};
+ function frame(t){const dt=Math.min((t-t0)/1000,.05);t0=t;
+  const gr=x.createLinearGradient(0,0,0,H*T);gr.addColorStop(0,'#bfe3ff');gr.addColorStop(.75,'#e6f6e8');x.fillStyle=gr;x.fillRect(0,0,W*T,H*T);
+  x.fillStyle='#9fdca8';x.fillRect(0,8*T,W*T,2*T);
+  x.fillStyle='#b58be0';x.fillRect(3*T,0,3*T,T+6);[3,4.5,5.6].forEach(a=>x.fillRect(a*T,-6,.4*T,10));x.fillStyle='#ffe58a';x.fillRect(3.5*T,6,8,8);x.fillRect(5*T-4,6,8,8);
+  spr(x,'y',4*T+5,2,2.5);
+  L.forEach(l=>l.o=l.o.map(o=>{o+=l.v*dt;return o>W+1?-1:o<-1?W+1:o}));
+  L.forEach(l=>l.o.forEach(o=>{F[l.k]((o+.5)*T,(l.r+.5)*T);if(l.r==p[1]&&Math.abs(o-p[0])<.7){reset();$('#o').textContent=C.n2Ouch}}));
+  spr(x,'e',p[0]*T+6,p[1]*T+1,2.5);
+  if(p[1]==0){setTimeout(s7,300);return}
+  raf=requestAnimationFrame(frame)}
+ bindPad((dx,dy)=>{const a=p[0]+dx,b=p[1]+dy;if(a>=0&&a<W&&b>=0&&b<H)p=[a,b]});
+ raf=requestAnimationFrame(t=>{t0=t;frame(t)})}
+
+function s7(){card(`<h2>${C.finTit}</h2><p class="s">${C.finSub} 💕</p><button class="b lila" id="n">💗 ${C.btnFin}</button>`);confetti();$('#n').onclick=s8}
+
+function s8(){card(`<h2>${C.cartaTit} 💌</h2><div id="env" style="cursor:pointer"><canvas id="c" width="64" height="48" style="width:210px;margin:10px auto;border:0;animation:bob 1.2s ease-in-out infinite alternate"></canvas><p class="s">${C.sobreTxt}</p></div>`);
+ const x=$('#c').getContext('2d');x.fillStyle='#f6d6e4';x.fillRect(4,10,56,36);x.fillStyle='#e9a9c6';x.beginPath();x.moveTo(4,10);x.lineTo(32,32);x.lineTo(60,10);x.closePath();x.fill();heart(x,24,26,2,'#ff4d8d');
+ $('#env').onclick=carta}
+function carta(){card(`<h2>${C.cartaTit} 💌</h2><p class="s" style="font-size:9px">${C.cartaTexto}</p><h2 style="font-size:12px;margin-top:14px">${C.pideTxt}</h2><button class="b" id="y">${C.btnSiN}</button><button class="b no" id="n">${C.btnNoN}</button><div class="sts" id="st"></div><p id="sm" class="s" style="color:#e0204a;min-height:14px"></p><p class="s">${C.firma}<br>— ${C.nombreYo}</p>`);
+ let n=0;const fr=C.tristes.split('|').filter(Boolean);
+ $('#y').onclick=siNovia;
+ $('#n').onclick=()=>{const st=$('#st');const im=new Image();im.className='stk';im.src=sadCat(n);im.style.setProperty('--r',(Math.random()*30-15)+'deg');st.appendChild(im);if(st.children.length>12)st.firstChild.remove();
+  $('#sm').textContent=fr.length?fr[n%fr.length]:'';n++;
+  const y=$('#y');y.style.transform='scale('+Math.min(1+n*.12,1.9)+')';y.style.margin=(6+n*3)+'px'}}
+function sadCat(i){const c=document.createElement('canvas');c.width=c.height=32;const x=c.getContext('2d');
+ const [a,b]=[['#b8b8c4','#8a8a98'],['#f6a65a','#d9803a'],['#ffffff','#cfcfdc'],['#6a6a7a','#44444f']][i%4],D='#3a2432',PK='#f6a6bf';
+ const R=(X,Y,w,h,col)=>{x.fillStyle=col;x.fillRect(X,Y,w,h)};
+ R(5,4,7,6,D);R(6,5,5,5,a);R(7,6,3,3,PK);R(20,4,7,6,D);R(21,5,5,5,a);R(22,6,3,3,PK);
+ R(5,9,22,20,D);R(6,10,20,18,a);R(6,23,3,1,b);R(23,23,3,1,b);R(7,26,3,1,b);R(22,26,3,1,b);
+ R(9,14,2,1,D);R(11,13,2,1,D);R(21,14,2,1,D);R(19,13,2,1,D);
+ R(10,15,4,5,D);R(18,15,4,5,D);R(11,16,2,2,'#fff');R(19,16,2,2,'#fff');
+ R(15,21,2,1,PK);R(14,24,4,1,D);R(13,25,1,1,D);R(18,25,1,1,D);
+ R(10,20,2,3,'#7fc4f2');R(20,20,2,3,'#7fc4f2');if(i%2){R(10,23,2,2,'#7fc4f2');R(20,23,2,2,'#7fc4f2')}
+ return c.toDataURL()}
+function siNovia(){card(`<h2>${C.respTit} 🎉</h2>${C.fotoElla||C.fotoYo?`<div class="photos">${C.fotoYo?`<img src="${C.fotoYo}">`:''}${C.fotoElla?`<img src="${C.fotoElla}">`:''}</div>`:'<p style="font-size:40px;margin:6px">💖</p>'}<p class="s" style="font-size:9px">${C.respTxt}</p>${(C.audio||C.audioArchivo)?`<p class="s">🎵 ${C.cancion}</p><audio controls autoplay src="${C.audio||C.audioArchivo}"></audio>`:''}<p class="s">${C.firma}<br>— ${C.nombreYo}</p>`);confetti()}
+
+/* ---- Editor ---- */
+const save=()=>{try{localStorage.setItem('juguito2',JSON.stringify(C))}catch(e){}};
+const rd=f=>new Promise(r=>{const a=new FileReader();a.onload=()=>r(a.result);a.readAsDataURL(f)});
+const rimg=f=>new Promise(r=>{const a=new Image();a.onload=()=>{const s=Math.min(1,520/Math.max(a.width,a.height)),c=document.createElement('canvas');c.width=a.width*s;c.height=a.height*s;c.getContext('2d').drawImage(a,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',.82))};a.src=URL.createObjectURL(f)});
+function openEd(){const e=$('#editor');e.hidden=false;
+ e.innerHTML='<div class="ep"><h3>Editar todo</h3><small>Cambia lo que quieras y toca “Guardar y jugar”.</small>'+FIELDS.map(([k,l,t])=>{if(!t)return`<h4>${k}</h4>`;const v=C[k]||'';
+  if(t=='t')return`<label>${l}</label><input type="text" data-k="${k}" value="${String(v).replace(/"/g,'&quot;')}">`;
+  if(t=='a')return`<label>${l}</label><textarea rows="3" data-k="${k}">${v}</textarea>`;
+  if(t=='c')return`<label>${l}</label><input type="color" data-k="${k}" value="${v}">`;
+  if(t=='b')return`<label><input type="checkbox" data-k="${k}" ${v?'checked':''}> ${l}</label>`;
+  return`<label>${l}</label><input type="file" data-f="${k}" accept="${t=='i'?'image/*':'audio/*'}"> <small>${v?'✔ cargado':''}</small> ${v?`<button class="g" data-x="${k}">Quitar</button>`:''}`}).join('')+
+ '<div class="row"><button id="sv">Guardar y jugar</button><button id="dl">Descargar mi versión (.html)</button><button class="g" id="rs">Restaurar</button><button class="g" id="cl">Cerrar</button></div></div>';
+ e.querySelectorAll('[data-f]').forEach(i=>i.onchange=async()=>{const f=i.files[0];if(!f)return;const k=i.dataset.f;C[k]=k=='audio'?await rd(f):await rimg(f);i.nextElementSibling.textContent='✔ cargado'});
+ e.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{C[b.dataset.x]='';b.remove()});
+ const grab=()=>e.querySelectorAll('[data-k]').forEach(i=>C[i.dataset.k]=i.type=='checkbox'?i.checked:i.value);
+ $('#sv').onclick=()=>{grab();save();e.hidden=true;start()};
+ $('#cl').onclick=()=>e.hidden=true;
+ $('#rs').onclick=()=>{if(confirm('¿Borrar tus cambios guardados?')){localStorage.removeItem('juguito2');C={...DEF};e.hidden=true;start()}};
+ $('#dl').onclick=()=>{grab();save();const d=document.documentElement.cloneNode(true);d.querySelector('#app').innerHTML='';d.querySelector('#editor').innerHTML='';d.querySelector('#editor').setAttribute('hidden','');d.querySelectorAll('.conf').forEach(x=>x.remove());d.querySelector('body').removeAttribute('class');d.removeAttribute('style');
+  d.querySelector('#cfg').textContent=JSON.stringify(C).replace(/</g,'\\u003c');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['<!DOCTYPE html>'+d.outerHTML],{type:'text/html'}));a.download='Juguito.html';a.click()}}
+$('#gear').onclick=openEd;
+function start(){theme();document.body.classList.remove('dark');$('#gear').style.display=(C.mostrarEditor!==false||location.hash=='#editar')?'':'none';s1()}
+start();
+</script>
+
+</body></html>
